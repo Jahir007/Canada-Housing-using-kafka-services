@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Housing Market Trends</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Housing Market Trends</h1>
+    </header>
+
+    <section id="overview">
+        <div class="card">
+            <h2>Overview</h2>
+            <p>
+                The housing market trends section provides a comprehensive view of the latest
+                developments in the local housing market. Analyzing data from the provided dataset,
+                we explore various metrics such as total dwellings, types of housing units,
+                homeownership rates, vacancy rates, and other significant indicators.
+                This analysis aims to offer insights into the dynamics shaping the housing market
+                over time and across different regions.
+            </p>
+            <p>
+                Key trends highlighted include changes in total dwellings, the distribution of
+                single-detached versus multiple dwellings, shifts in homeownership patterns,
+                and fluctuations in key market indices like the Home Price Index (HPI) and
+                Consumer Price Index (CPI).
+            </p>
+            <p>
+                By visualizing this data through interactive charts and tables, stakeholders
+                can gain a clearer understanding of how the housing market has evolved,
+                which can inform decision-making for prospective homebuyers, investors,
+                policymakers, and real estate professionals.
+            </p>
+        </div>
+    </section>
+    
+    <section id="charts">
+        <div class="card">
+            <h2>Total Dwellings Over Time</h2>
+            <canvas id="barChartCanvas"></canvas>
+        </div>
+
+        <div class="card">
+            <h2>Constructions Started Year by Year</h2>
+            <div id="lineChart"></div>
+        </div>
+    </section>
+
+    <section id="table">
+        <div class="card">
+            <h2>Housing Market Data</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Total Dwellings</th>
+                        <th>Single Detached</th>
+                        <th>Multiple</th>
+                        <th>Apartment</th>
+                        <th>Total Dwellings Market</th>
+                        <th>Homeownership (Freehold)</th>
+                        <th>Rental</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in chart_data.table_data %}
+                    <tr>
+                        <td>{{ entry.year }}</td>
+                        <td>{{ entry.total_dwelling }}</td>
+                        <td>{{ entry.single_detached }}</td>
+                        <td>{{ entry.multiple }}</td>
+                        <td>{{ entry.apartment }}</td>
+                        <td>{{ entry.total_dwelling_market }}</td>
+                        <td>{{ entry.homeownership_freehold }}</td>
+                        <td>{{ entry.rental }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Housing Market Trends</p>
+    </footer>
+
+    <script>
+        // JavaScript for dynamic content and chart rendering
+        var years = {{ chart_data.years | tojson | safe }};
+        var totalDwellings = {{ chart_data.total_dwelling | tojson | safe }};
+        var lineData = {{ chart_data.line_data | tojson | safe }};
+
+        // Create Chart.js bar chart
+        var ctx = document.getElementById('barChartCanvas').getContext('2d');
+        var barChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: 'Total Dwellings',
+                    data: totalDwellings,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Total Dwellings'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Create Plotly line chart
+        var lineChart = {
+            x: years,
+            y: totalDwellings,
+            type: 'scatter',
+            mode: 'lines+markers',
+            line: { color: 'orange' }
+        };
+
+        var lineChartData = [lineChart];
+        Plotly.newPlot('lineChart', lineChartData);
+
+        // Refresh the page every 10 seconds
+        setInterval(function() {
+            location.reload();
+        }, 10000);
+    </script>
+</body>
+</html>
